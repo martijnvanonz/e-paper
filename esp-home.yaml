@@ -1,0 +1,131 @@
+esphome:
+  name: esphome-web-14cd78
+  friendly_name: Epaper
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esphome-Web-14Cd78"
+    password: "fW60vxyeU4i7"
+
+font:
+  - file: 'fonts/GothamRnd-Book.ttf'
+    id: font_small_book
+    size: 50
+    glyphs: ['$', '€', '!', ',', '.', '"', '%', '(', ')', '+', '-', '_', ':', '°', '0',
+    '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'Á', 'B', 'C', 'D', 'E',
+    'F', 'G', 'H', 'I', 'Í', 'J', 'K', 'L', 'M', 'N', 'O', 'Ó', 'Ö', 'Ő', 'P', 'Q', 'R', 'S', 'É',
+    'T', 'U', 'Ú', 'Ü', 'Ű', 'V', 'W', 'X', 'Y', 'Z', ' ', 'a', 'b', 'c', 'd', 'e', 'f',
+    'g', 'h', 'i', 'í', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+    'u', 'v', 'w', 'x', 'y', 'z','á', 'é', 'ö', 'ő', 'ü', 'ű', 'ó', '/']
+  - file: 'fonts/GothamRnd-Bold.ttf'
+    id: font_large_bold
+    size: 108
+    # glyphs: [' ', '-', '°', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'C']
+  - file: 'fonts/GothamRnd-Bold.ttf'
+    id: font_title
+    size: 54
+    # glyphs: ['W', 'E', 'A', 'T', 'H', 'R', 'L', 'I', 'N', ' ']
+  - file: 'fonts/GothamRnd-Bold.ttf'
+    id: font_medium_bold
+    size: 30
+    # glyphs: [' ', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'M', 'I', 'N']
+  - file: 'fonts/GothamRnd-Bold.ttf'
+    id: font_small_bold
+    size: 18
+    # glyphs: [' ', '-', '°', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', 'M', 'I', 'N']
+
+button:
+  - platform: shutdown
+    name: "Epaper - Shutdown"
+  - platform: restart
+    name: "Epaper - Restart"
+  - platform: template
+    name: "Epaper - Refresh Screen"
+    entity_category: config
+    on_press:
+      - script.execute: update_screen    
+
+script:
+  - id: update_screen
+    then:
+      - component.update: eink_display
+
+spi:
+  clk_pin: GPIO13
+  mosi_pin: GPIO14
+
+color:
+  - id: color_bg
+    red: 0%
+    green: 0%
+    blue: 0%
+    white: 0%
+  - id: color_text
+    red: 0%
+    green: 0%
+    blue: 0%
+    white: 100%
+
+text_sensor:
+  - platform: homeassistant
+    entity_id: sensor.bitcoin_price_usd
+    id: bitcoin_price_usd
+  - platform: homeassistant
+    entity_id: sensor.bitcoin_price_eur
+    id: bitcoin_price_eur
+  - platform: homeassistant
+    entity_id: sensor.mempool_block_height
+    id: bitcoin_block_height
+  - platform: homeassistant
+    entity_id: sensor.miner_9a3b81_hashrate
+    id: miner_hashrate
+  - platform: homeassistant
+    entity_id: sensor.miner_9a3b81_miner_consumption
+    id: miner_power
+display:
+  - platform: waveshare_epaper
+    id: eink_display
+    cs_pin: GPIO15
+    dc_pin: GPIO27
+    busy_pin: GPIO25
+    reset_pin: GPIO26
+    reset_duration: 2ms
+    model: 7.50inV2
+    update_interval: 60min
+    rotation: 90°
+    lambda: |-
+        it.fill(color_bg);
+        it.printf(240, 84, id(font_small_book), TextAlign::TOP_CENTER, "BTC - %s", id(bitcoin_block_height).state.c_str());
+        it.printf(50, 150, id(font_small_book), TextAlign::TOP_CENTER, "$");
+        it.printf(80, 150, id(font_small_book), TextAlign::TOP_LEFT, "%s", id(bitcoin_price_usd).state.c_str());
+        it.printf(50, 200, id(font_small_book), TextAlign::TOP_CENTER, "€");
+        it.printf(80, 200, id(font_small_book), TextAlign::TOP_LEFT, "%s", id(bitcoin_price_eur).state.c_str());
+        it.printf(240, 275, id(font_small_book), TextAlign::TOP_CENTER, "Miner");
+        it.printf(40, 350, id(font_small_book), TextAlign::TOP_LEFT, "Hashrate");
+        it.printf(40, 400, id(font_small_book), TextAlign::TOP_LEFT, "%s TH/S", id(miner_hashrate).state.c_str());
+        it.printf(40, 475, id(font_small_book), TextAlign::TOP_LEFT, "Power");
+        it.printf(40, 525, id(font_small_book), TextAlign::TOP_LEFT, "%s Watt", id(miner_power).state.c_str());
+
+
+
+    
+
+captive_portal:

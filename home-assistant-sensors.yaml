@@ -1,0 +1,45 @@
+sensor:
+  - platform: rest
+    resource: https://mempool.space/api/v1/fees/recommended
+    name: Mempool fastest fee
+    value_template: "{{ value_json.fastestFee }}"
+    timeout: 60
+  - platform: rest
+    resource: https://mempool.space/api/v1/fees/recommended
+    name: Mempool halfHour fee
+    value_template: "{{ value_json.halfHourFee }}"
+    timeout: 60
+  - platform: rest
+    resource: https://mempool.space/api/v1/fees/recommended
+    name: Mempool hour fee
+    value_template: "{{ value_json.hourFee }}"
+    timeout: 60
+  - platform: rest
+    resource: https://mempool.space/api/v1/fees/recommended
+    name: Mempool economy fee
+    value_template: "{{ value_json.economyFee }}"
+    timeout: 60
+  - platform: rest
+    resource: https://mempool.space/api/v1/fees/recommended
+    name: Mempool minimum fee
+    value_template: "{{ value_json.minimumFee }}"
+    timeout: 60
+  - platform: rest
+    resource: https://mempool.space/api/v1/difficulty-adjustment
+    name: Mempool average block time
+    value_template: "{{ value_json.timeAvg / 1000 / 60 | round(1)}}"
+    timeout: 60
+  - platform: rest
+    resource: https://mempool.space/api/blocks/tip/height
+    name: Mempool block height
+    timeout: 60
+  - platform: rest
+    resource: https://api.coindesk.com/v1/bpi/currentprice.json
+    name: Bitcoin price USD
+    value_template: "{{ value_json.bpi.USD.rate_float | round(0)}}"
+    timeout: 60
+  - platform: rest
+    resource: https://api.coindesk.com/v1/bpi/currentprice.json
+    name: Bitcoin price EUR
+    value_template: "{{ value_json.bpi.EUR.rate_float | round()}}"
+    timeout: 60
